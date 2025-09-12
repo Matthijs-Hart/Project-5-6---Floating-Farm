@@ -1,7 +1,7 @@
 
 | **Question** | **Answer** |
 |--------------|------------|
-| **Gesprek 1** ||
+| <td colspan="2" align="center"><b>Gesprek 1</b></td> |
 | Hoeveel budget hebben we? | |
 | Hoe moet het model er uit gaan zien? | |
 | Wat voor eisen moet het model aan doen? | |
