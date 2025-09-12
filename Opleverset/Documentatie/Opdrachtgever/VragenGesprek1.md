@@ -1,6 +1,6 @@
 
 | **Question** | **Answer** |
 |--------------|------------|
-| What is your name? | My name is ChatGPT. |
-| What is the capital of France? | Paris. |
-| What is 2 + 2? | 4. |
+| Hoeveel budget hebben we? | |
+| Hoe moet het model er uit gaan zien? | |
+| Wat voor eisen moet het model aan doen? | |
