@@ -6,4 +6,5 @@
 | Wat voor eisen moet het model aan doen? | |
 | Hoevaak en waneer spreken we? | |
 | Wat voor domcumentatie wil je van ons krijgen? | |
-| Wat voor informatie heb je voor ons? (3D model/tekeningen) | |
+| Wat voor informatie heb je voor ons? (3D model/tekeningen) | |`
+| Zijn er limit/voorkeuren voor het gebuiken van externe code (libraries) | |
