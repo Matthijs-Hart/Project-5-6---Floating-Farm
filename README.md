@@ -16,7 +16,7 @@ Jira Link: https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/summa
 | 2 | Analyseren | Je kunt het beschreven probleem omzetten in requirements | Requirements document | `/Opleverset/Documentatie/Product backlog.xlsx` | ✅ |
 | 3 | Analyseren | Je kunt als onderdeel van de requirements, relevante kwaliteitseisen opstellen | Requirementspecificatie | `/Opleverset/Documentatie/Requirementspecificatie.docx` | 🔄 |
 | 4 | Analyseren | Je kunt met de projectgroep voor het project relevant literatuuronderzoek, experimenteel onderzoek en gebruikersonderzoek doen | Onderzoeksrapport(en) | `/Opleverset/Documentatie/Onderzoeken/` | 🔄 |
-| 5 | Analyseren | Je kunt een analyse maken van de algemene en project specifieke risico's | Risicoanalyse document | `temp` | 🔄 |
+| 5 | Analyseren | Je kunt een analyse maken van de algemene en project specifieke risico's | Risicoanalyse document | `temp` | ✅ |
 | 6 | Adviseren | Je geeft een advies welke van de alternatieve oplossingen het meest geschikt is | temp | `temp` | ⏳ |
 | 7 | Ontwerpen | Je kunt een architectuurontwerp van de (huidige en) gewenste situatie opstellen van het eigen project | Architectuur document | `/Opleverset/Ontwerpen/Systeemarchitectuur ontwerp.drawio` | ✅ |
 | 8 | Ontwerpen | Je kunt bepalen welke ontwerpen voor functionaliteit, interactie, structuur en architectuur relevant zijn voor de eigen opdracht en deze ontwerpen opstellen | alle ontwerpen | `/Opleverset/Ontwerpen/` | 🔄 |
