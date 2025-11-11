@@ -13,7 +13,7 @@ Jira Link: https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/summa
 | # | Fase | Projectdoel | Product/Deliverable | Bestandsnaam/Locatie | Status |
 |---|------|-------------|---------------------|----------------------|--------|
 | 1 | Analyseren | Je kunt je in de context verdiepen en een voor het hele project relevante probleemomschrijving formuleren | Probleemanalyse document | `/Opleverset/Documentatie/probleemstelling.docx` | ✅ |
-| 2 | Analyseren | Je kunt het beschreven probleem omzetten in requirements | Requirements document | `/Opleverset/Documentatie/Requirementspecificatie.docx` | ⏳ |
+| 2 | Analyseren | Je kunt het beschreven probleem omzetten in requirements | Requirements document | `/Opleverset/Documentatie/Requirementspecificatie.docx` | ✅ |
 | 3 | Analyseren | Je kunt als onderdeel van de requirements, relevante kwaliteitseisen opstellen | Requirementspecificatie | `temp` | ⏳ |
 | 4 | Analyseren | Je kunt met de projectgroep voor het project relevant literatuuronderzoek, experimenteel onderzoek en gebruikersonderzoek doen | Onderzoeksrapport(en) | `/Opleverset/Documentatie/Onderzoeken/` | 🔄 |
 | 5 | Analyseren | Je kunt een analyse maken van de algemene en project specifieke risico's | Risicoanalyse document | `temp` | ⏳ |
