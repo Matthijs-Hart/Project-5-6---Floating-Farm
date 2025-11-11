@@ -25,6 +25,9 @@ Jira Link: https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/summa
 | 11 | Realiseren | Je kunt programmacode schrijven die voldoet aan gegeven kwaliteitseisen en rekening houdt met onverwachte situaties (exceptions) | Source code | `temp` | 🔄 |
 | 12 | Realiseren | e kunt ontwerpen omzetten in een werkend prototype | Fysiek prototype + demo | Prototype + `temp` | 🔄 |
 | 13 | Manage & Control | Je doet aan versiebeheer van alle relevante documenten door middel van een changelog | Changelog - Github | | 🔄 |
+| 14 | Manage & Control | Je kunt je project waar nodig tussentijds aanpassen aan gegeven budget en tijd | Jira | `temp` | 🔄 |
+| 15 | Professional skills | Je kunt het contact organiseren en onderhouden tussen je projectgroep en de stakeholders en die op passende wijze voor de opdracht relevante informatie voorzien | | | 🔄 |
+
 
 **Status legenda:**
 - ⏳ = Nog niet gestart
