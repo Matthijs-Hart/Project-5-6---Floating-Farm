@@ -1,139 +1,145 @@
-#include <Arduino.h>
-#include "I2Cdev.h"
-#include "MPU6050_6Axis_MotionApps20.h"
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include <Wire.h>
 
-#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-    #include "Wire.h"
-#endif
 
-// Using both cores
+#define LED_PIN  2
+#define MOTOR1_PIN 12
+#define MOTOR2_PIN 14
+#define MOTOR3_PIN 27
+#define MOTOR4_PIN 26
+
+Adafruit_MPU6050 mpu;
+
+float angleRoll, anglePitch, angleYaw = 0.0; // absolute orientation
+
+float rollOffset, pitchOffset = 0.0; // offsets used for water reference
+
+const float alpha = 0.98; // rely more on gyro or 1 - alpha erly on accelerometer
+
+
+//Multicore
 TaskHandle_t sensorHandle;
 TaskHandle_t motorHandle;
-void sensor(void * pvParameters);
-void motor(void * pvParameters);
 
+// TIMING
+unsigned long lastMicros = 0;
+unsigned long lastZeroTime = 0;
+const unsigned long intervalSetWaterReferenceMs = 60000; // elke 60 seconden wordt de waterpas opnieuw berekend
 
-MPU6050 mpu;
+float gyroBiasX, gyroBiasY, gyroBiasZ = 0;
 
-#define OUTPUT_READABLE_QUATERNION
-
-#define LED_PIN 2 // (Arduino is 13, Teensy is 11, Teensy++ is 6)
-#define MOTOR1_PIN 26
-#define MOTOR2_PIN 27
-#define MOTOR3_PIN 14
-#define MOTOR4_PIN 12
-
+bool blinkState = false;
 bool motor1Status = false;
 bool motor2Status = false;
 bool motor3Status = false;
 bool motor4Status = false;
 
-bool blinkState = false;
+// declare functions
+void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, float &y, float &z, float &w);
+void setWaterReference();
+void handleSensorData(void * pvParameters);
+void handleMotorData(void * pvParameters);
 
-// MPU control/status vars
-bool dmpReady = false;  // set true if DMP init was successful
-uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU
-uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
-uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
-uint16_t fifoCount;     // count of all bytes currently in FIFO
-uint8_t fifoBuffer[64]; // FIFO storage buffer
-
-// orientation/motion vars
-Quaternion q;           // [w, x, y, z]         quaternion container
-VectorInt16 aa;         // [x, y, z]            accel sensor measurements
-VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
-VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
-VectorFloat gravity;    // [x, y, z]            gravity vector
-float euler[3];         // [psi, theta, phi]    Euler angle container
-float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
-
-// ================================================================
-// ===               INTERRUPT DETECTION ROUTINE                ===
-// ================================================================
-
-volatile bool mpuInterrupt = false; 
-void dmpDataReady() {
-    mpuInterrupt = true;
-}
-
-
-// ================================================================
-// ===                      INITIAL SETUP                       ===
-// ================================================================
-
-void setup() {
-    #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-        Wire.begin();
-        Wire.setClock(400000);
-    #endif
-
+void setup(){
     Serial.begin(115200);
+    while (!Serial) {delay(10);}
 
-    mpu.initialize();
-
-    devStatus = mpu.dmpInitialize();
-
-    mpu.setXGyroOffset(220);
-    mpu.setYGyroOffset(76);
-    mpu.setZGyroOffset(-85);
-    mpu.setZAccelOffset(1788);
-
-    if (devStatus == 0) {
-        mpu.CalibrateAccel(6);
-        mpu.CalibrateGyro(6);
-        mpu.PrintActiveOffsets();
-        mpu.setDMPEnabled(true);
-        mpuIntStatus = mpu.getIntStatus();
-
-        dmpReady = true;
-
-        packetSize = mpu.dmpGetFIFOPacketSize();
+    Wire.begin();
+    while (!mpu.begin(MPU6050_I2CADDR_DEFAULT, &Wire, 0)) {
+        Serial.println("Failed to find MPU6050 chip");
+        delay(200);
     }
+    Serial.println("MPU6050 Found!");
 
-    // configure LED for output
     pinMode(LED_PIN, OUTPUT);
     pinMode(MOTOR1_PIN, INPUT_PULLUP); // input for testing using buttons
     pinMode(MOTOR2_PIN, INPUT_PULLUP); // input for testing using buttons
     pinMode(MOTOR3_PIN, INPUT_PULLUP); // input for testing using buttons
     pinMode(MOTOR4_PIN, INPUT_PULLUP); // input for testing using buttons
 
-    xTaskCreatePinnedToCore(sensor, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
-    xTaskCreatePinnedToCore(motor, "Motor", 10000, NULL, 1, &motorHandle, 1);
-    
+    xTaskCreatePinnedToCore(handleSensorData, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
+    xTaskCreatePinnedToCore(handleMotorData, "Motor", 10000, NULL, 1, &motorHandle, 1);
+
+    mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+    mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+    mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+
+    delay(200);
+
+    // Calibratie van de sensor
+    const int calSamples = 200;
+    double sx = 0, sy = 0, sz = 0;
+    for (int i = 0; i < calSamples; i++) {
+        sensors_event_t a, g, temp;
+        mpu.getEvent(&a, &g, &temp);
+        sx += g.gyro.x;
+        sy += g.gyro.y;
+        sz += g.gyro.z;
+        delay(5);
+    }
+    gyroBiasX = sx / calSamples;
+    gyroBiasY = sy / calSamples;
+    gyroBiasZ = sz / calSamples;
+
+    lastMicros = micros();
+    lastZeroTime = millis();
 }
 
+void loop(){
+}
 
-void sensor(void * pvParameters){
-    Serial.print("Sensor running on core: ");
-    Serial.println(xPortGetCoreID());
+void handleSensorData(void * pvParameters){
     for(;;){
-        if (!dmpReady) return;
-        // read a packet from FIFO
-        if (mpu.dmpGetCurrentFIFOPacket(fifoBuffer)) { // Get the Latest packet 
-            #ifdef OUTPUT_READABLE_QUATERNION
-                mpu.dmpGetQuaternion(&q, fifoBuffer);
-                Serial.print("ROT:");
-                Serial.print(q.x);
-                Serial.print(",");
-                Serial.print(q.y);
-                Serial.print(",");
-                Serial.println(q.w);
-            #endif
-    
-            // blink LED to indicate activity
-            blinkState = !blinkState;
-            digitalWrite(LED_PIN, blinkState);
+        sensors_event_t a, g, temp;
+        mpu.getEvent(&a, &g, &temp);
 
-            //Unity needs a delay to read data
-            vTaskDelay(33);
-        }   
+        // Time step
+        unsigned long now = micros();
+        float dt = (now - lastMicros) / 1e6f;
+        lastMicros = now;
+
+        // Gyro (rad/s → deg/s) with bias removal
+        float gx_deg = (g.gyro.x - gyroBiasX) * RAD_TO_DEG;
+        float gy_deg = (g.gyro.y - gyroBiasY) * RAD_TO_DEG;
+        float gz_deg = (g.gyro.z - gyroBiasZ) * RAD_TO_DEG;
+
+        // Integrate gyro
+        angleRoll  += gx_deg * dt;
+        anglePitch += gy_deg * dt;
+        angleYaw   += gz_deg * dt;
+
+        float ax = a.acceleration.x;
+        float ay = a.acceleration.y;
+        float az = a.acceleration.z;
+        float accelRoll  = atan2(ay, az) * RAD_TO_DEG;
+        float accelPitch = atan2(-ax, sqrt(ay * ay + az * az)) * RAD_TO_DEG;
+
+        // Complementary filter
+        angleRoll  = alpha * angleRoll  + (1.0 - alpha) * accelRoll;
+        anglePitch = alpha * anglePitch + (1.0 - alpha) * accelPitch;
+
+        // Apply water reference offsets
+        float rollRelative  = angleRoll  - rollOffset;
+        float pitchRelative = anglePitch - pitchOffset;
+        float yawRelative   = angleYaw; // no water ref for yaw
+
+        float qx, qy, qz, qw;
+        eulerToQuaternion(rollRelative, pitchRelative, yawRelative, qx, qy, qz, qw);
+        Serial.print("ROT:");
+        Serial.print(qx, 4);
+        Serial.print(",");
+        Serial.print(qy, 4);
+        Serial.print(",");
+        Serial.println(qw, 4);
+
+        blinkState = !blinkState;
+        digitalWrite(LED_PIN, blinkState);
+        vTaskDelay(33 / portTICK_PERIOD_MS);
     }
 }
 
-
-void motor(void * pvParameters){
-    Serial.print("Motor running on core: ");
-    Serial.println(xPortGetCoreID());
+void handleMotorData(void * pvParameters){
     for(;;){
         if (digitalRead(MOTOR1_PIN) != motor1Status){
             motor1Status = !motor1Status;
@@ -152,13 +158,46 @@ void motor(void * pvParameters){
             Serial.print("MOTOR4:");
             Serial.println(!motor4Status);
         } 
-        vTaskDelay(33);
+        vTaskDelay(33 / portTICK_PERIOD_MS);
     }
 }
 
-// ================================================================
-// ===                    MAIN PROGRAM LOOP                     ===
-// ================================================================
+void setWaterReference() {
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&a, &g, &temp);
 
-void loop() {
+  float ax = a.acceleration.x;
+  float ay = a.acceleration.y;
+  float az = a.acceleration.z;
+
+  // Compute absolute angles from gravity
+  float accelRoll  = atan2(ay, az) * RAD_TO_DEG;
+  float accelPitch = atan2(-ax, sqrt(ay * ay + az * az)) * RAD_TO_DEG;
+
+  // Force filter state to match gravity
+  angleRoll  = accelRoll;
+  anglePitch = accelPitch;
+  angleYaw = 0;
+
+  Serial.println("Re-aligned to gravity (water reference).");
 }
+
+
+void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, float &y, float &z, float &w) {
+  float roll  = rollDeg  * DEG_TO_RAD;
+  float pitch = pitchDeg * DEG_TO_RAD;
+  float yaw   = yawDeg   * DEG_TO_RAD;
+
+  float cy = cos(yaw * 0.5);
+  float sy = sin(yaw * 0.5);
+  float cp = cos(pitch * 0.5);
+  float sp = sin(pitch * 0.5);
+  float cr = cos(roll * 0.5);
+  float sr = sin(roll * 0.5);
+
+  w = cr * cp * cy + sr * sp * sy;
+  x = sr * cp * cy - cr * sp * sy;
+  y = cr * sp * cy + sr * cp * sy;
+  z = cr * cp * sy - sr * sp * cy;
+}
+
