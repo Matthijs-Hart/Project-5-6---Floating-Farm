@@ -35,6 +35,8 @@ bool motor2Status = false;
 bool motor3Status = false;
 bool motor4Status = false;
 
+sensors_event_t a, g, temp;
+
 // declare functions
 void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, float &y, float &z, float &w);
 void setWaterReference();
@@ -71,7 +73,6 @@ void setup(){
     const int calSamples = 200;
     double sx = 0, sy = 0, sz = 0;
     for (int i = 0; i < calSamples; i++) {
-        sensors_event_t a, g, temp;
         mpu.getEvent(&a, &g, &temp);
         sx += g.gyro.x;
         sy += g.gyro.y;
@@ -87,56 +88,6 @@ void setup(){
 }
 
 void loop(){
-}
-
-void handleSensorData(void * pvParameters){
-    for(;;){
-        sensors_event_t a, g, temp;
-        mpu.getEvent(&a, &g, &temp);
-
-        // Time step
-        unsigned long now = micros();
-        float dt = (now - lastMicros) / 1e6f;
-        lastMicros = now;
-
-        // Gyro (rad/s → deg/s) with bias removal
-        float gx_deg = (g.gyro.x - gyroBiasX) * RAD_TO_DEG;
-        float gy_deg = (g.gyro.y - gyroBiasY) * RAD_TO_DEG;
-        float gz_deg = (g.gyro.z - gyroBiasZ) * RAD_TO_DEG;
-
-        // Integrate gyro
-        angleRoll  += gx_deg * dt;
-        anglePitch += gy_deg * dt;
-        angleYaw   += gz_deg * dt;
-
-        float ax = a.acceleration.x;
-        float ay = a.acceleration.y;
-        float az = a.acceleration.z;
-        float accelRoll  = atan2(ay, az) * RAD_TO_DEG;
-        float accelPitch = atan2(-ax, sqrt(ay * ay + az * az)) * RAD_TO_DEG;
-
-        // Complementary filter
-        angleRoll  = alpha * angleRoll  + (1.0 - alpha) * accelRoll;
-        anglePitch = alpha * anglePitch + (1.0 - alpha) * accelPitch;
-
-        // Apply water reference offsets
-        float rollRelative  = angleRoll  - rollOffset;
-        float pitchRelative = anglePitch - pitchOffset;
-        float yawRelative   = angleYaw; // no water ref for yaw
-
-        float qx, qy, qz, qw;
-        eulerToQuaternion(rollRelative, pitchRelative, yawRelative, qx, qy, qz, qw);
-        Serial.print("ROT:");
-        Serial.print(qx, 4);
-        Serial.print(",");
-        Serial.print(qy, 4);
-        Serial.print(",");
-        Serial.println(qw, 4);
-
-        blinkState = !blinkState;
-        digitalWrite(LED_PIN, blinkState);
-        vTaskDelay(33 / portTICK_PERIOD_MS);
-    }
 }
 
 void handleMotorData(void * pvParameters){
@@ -162,25 +113,78 @@ void handleMotorData(void * pvParameters){
     }
 }
 
-void setWaterReference() {
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
+// Helper: compute roll and pitch (in degrees) from accelerometer data
+void computeAccelAngles(float &roll, float &pitch) {
+    sensors_event_t a, g, temp;
+    mpu.getEvent(&a, &g, &temp);
 
-  float ax = a.acceleration.x;
-  float ay = a.acceleration.y;
-  float az = a.acceleration.z;
+    float ax = a.acceleration.x;
+    float ay = a.acceleration.y;
+    float az = a.acceleration.z;
 
-  // Compute absolute angles from gravity
-  float accelRoll  = atan2(ay, az) * RAD_TO_DEG;
-  float accelPitch = atan2(-ax, sqrt(ay * ay + az * az)) * RAD_TO_DEG;
-
-  // Force filter state to match gravity
-  angleRoll  = accelRoll;
-  anglePitch = accelPitch;
-  angleYaw = 0;
-
-  Serial.println("Re-aligned to gravity (water reference).");
+    roll  = atan2(ay, az) * RAD_TO_DEG;
+    pitch = atan2(-ax, sqrt(ay * ay + az * az)) * RAD_TO_DEG;
 }
+
+void handleSensorData(void *pvParameters) {
+    for (;;) {
+        sensors_event_t a, g, temp;
+        mpu.getEvent(&a, &g, &temp);
+
+        // Time step
+        unsigned long now = micros();
+        float dt = (now - lastMicros) / 1e6f;
+        lastMicros = now;
+
+        // Gyro (rad/s → deg/s) with bias removal
+        float gx_deg = (g.gyro.x - gyroBiasX) * RAD_TO_DEG;
+        float gy_deg = (g.gyro.y - gyroBiasY) * RAD_TO_DEG;
+        float gz_deg = (g.gyro.z - gyroBiasZ) * RAD_TO_DEG;
+
+        // Integrate gyro
+        angleRoll  += gx_deg * dt;
+        anglePitch += gy_deg * dt;
+        angleYaw   += gz_deg * dt;
+
+        // Complementary filter using accelerometer data
+        float accelRoll, accelPitch;
+        computeAccelAngles(accelRoll, accelPitch);
+        angleRoll  = alpha * angleRoll  + (1.0 - alpha) * accelRoll;
+        anglePitch = alpha * anglePitch + (1.0 - alpha) * accelPitch;
+
+        // Apply water reference offsets
+        float rollRelative  = angleRoll  - rollOffset;
+        float pitchRelative = anglePitch - pitchOffset;
+        float yawRelative   = angleYaw; // no water ref for yaw
+
+        float qx, qy, qz, qw;
+        eulerToQuaternion(rollRelative, pitchRelative, yawRelative, qx, qy, qz, qw);
+
+        Serial.print("ROT:");
+        Serial.print(qx, 4);
+        Serial.print(",");
+        Serial.print(qy, 4);
+        Serial.print(",");
+        Serial.println(qw, 4);
+
+        blinkState = !blinkState;
+        digitalWrite(LED_PIN, blinkState);
+        vTaskDelay(33 / portTICK_PERIOD_MS);
+    }
+}
+
+void setWaterReference() {
+    float accelRoll, accelPitch;
+    computeAccelAngles(accelRoll, accelPitch);
+
+    // Force filter state to match gravity
+    angleRoll  = accelRoll;
+    anglePitch = accelPitch;
+    angleYaw = 0;
+
+    Serial.println("Re-aligned to gravity (water reference).");
+}
+
 
 
 void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, float &y, float &z, float &w) {
