@@ -50,6 +50,7 @@ void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, fl
 void setWaterReference();
 void handleSensorData(void * pvParameters);
 void handleMotorData(void * pvParameters);
+void pidCompute();
 
 void setup(){
     Serial.begin(115200);
@@ -110,15 +111,15 @@ void handleMotorData(void * pvParameters){
             motor1Status = !motor1Status;
             Serial.print("MOTOR1:");
             Serial.println(!motor1Status);
-        } else if (pitchOutput < 0.0){
+        } if (pitchOutput < 0.0){
             motor2Status = !motor2Status;
             Serial.print("MOTOR2:");
             Serial.println(!motor2Status);
-        } else if (rollOutput > 0.0){
+        } if (rollOutput > 0.0){
             motor3Status = !motor3Status;
             Serial.print("MOTOR3:");
             Serial.println(!motor3Status);
-        } else if (rollOutput < 0.0){
+        } if (rollOutput < 0.0){
             motor4Status = !motor4Status;
             Serial.print("MOTOR4:");
             Serial.println(!motor4Status);
