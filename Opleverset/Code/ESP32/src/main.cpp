@@ -1,6 +1,7 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
+#include <PID_v1.h>
 
 
 #define LED_PIN  2
@@ -11,12 +12,11 @@
 
 Adafruit_MPU6050 mpu;
 
-float angleRoll, anglePitch, angleYaw = 0.0; // absolute orientation
+double angleRoll, anglePitch, angleYaw = 0.0; // absolute orientation
 
-float rollOffset, pitchOffset = 0.0; // offsets used for water reference
+double rollOffset, pitchOffset = 0.0; // offsets used for water reference
 
-const float alpha = 0.98; // rely more on gyro or 1 - alpha erly on accelerometer
-
+const double alpha = 0.98; // rely more on gyro or 1 - alpha erly on accelerometer
 
 //Multicore
 TaskHandle_t sensorHandle;
@@ -36,6 +36,14 @@ bool motor3Status = false;
 bool motor4Status = false;
 
 sensors_event_t a, g, temp;
+
+// PID variables
+double rollOutput, rollSetpoint = 0.0;
+double pitchOutput, pitchSetpoint = 0.0;
+
+// PID controllers
+PID xAxis(&anglePitch, &pitchOutput, &pitchSetpoint, 1.0, 0.0, 0.0, DIRECT);
+PID yAxis(&angleRoll, &rollOutput, &rollSetpoint, 1.0, 0.0, 0.0, DIRECT);
 
 // declare functions
 void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, float &y, float &z, float &w);
@@ -85,6 +93,11 @@ void setup(){
 
     lastMicros = micros();
     lastZeroTime = millis();
+
+    // start PID controllers
+    xAxis.SetMode(AUTOMATIC);
+    yAxis.SetMode(AUTOMATIC);
+
 }
 
 void loop(){
@@ -205,3 +218,7 @@ void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, fl
   z = cr * cp * sy - sr * sp * cy;
 }
 
+void pidCompute() {
+    xAxis.Compute();
+    yAxis.Compute();
+}
