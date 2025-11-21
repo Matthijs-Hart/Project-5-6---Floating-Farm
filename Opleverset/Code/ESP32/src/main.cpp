@@ -30,10 +30,44 @@ const unsigned long intervalSetWaterReferenceMs = 60000; // elke 60 seconden wor
 float gyroBiasX, gyroBiasY, gyroBiasZ = 0;
 
 bool blinkState = false;
-bool motor1Status = false;
-bool motor2Status = false;
-bool motor3Status = false;
-bool motor4Status = false;
+
+// Motor structure
+struct Motor {
+    int pin;
+    int id;
+    bool status;
+};
+
+struct System
+{
+    Motor motor1;
+    Motor motor2;
+    SystemState state;
+};
+
+
+enum SystemState {
+    idle,
+    activePositive,
+    activeNegitive,
+};
+
+// Motor objects
+Motor motor1 = {MOTOR1_PIN, 1, false};
+Motor motor2 = {MOTOR2_PIN, 2, false};
+Motor motor3 = {MOTOR3_PIN, 3, false};
+Motor motor4 = {MOTOR4_PIN, 4, false};
+
+System system1 = {
+    motor1,
+    motor2,
+    idle
+};
+System system2 = {
+    motor3,
+    motor4,
+    idle
+};
 
 sensors_event_t a, g, temp;
 
@@ -51,6 +85,8 @@ void setWaterReference();
 void handleSensorData(void * pvParameters);
 void handleMotorData(void * pvParameters);
 void pidCompute();
+void SystemRun(System &system);
+void motorPrintStatus(Motor &motor);
 
 void setup(){
     Serial.begin(115200);
@@ -107,23 +143,20 @@ void loop(){
 void handleMotorData(void * pvParameters){
     for(;;){
         pidCompute();
-        if (pitchOutput > 0.0){
-            motor1Status = !motor1Status;
-            Serial.print("MOTOR1:");
-            Serial.println(!motor1Status);
-        } if (pitchOutput < 0.0){
-            motor2Status = !motor2Status;
-            Serial.print("MOTOR2:");
-            Serial.println(!motor2Status);
-        } if (rollOutput > 0.0){
-            motor3Status = !motor3Status;
-            Serial.print("MOTOR3:");
-            Serial.println(!motor3Status);
-        } if (rollOutput < 0.0){
-            motor4Status = !motor4Status;
-            Serial.print("MOTOR4:");
-            Serial.println(!motor4Status);
+        if (angleRoll > 0.0){
+            system1.state = activePositive;
         } 
+        if (anglePitch < 0.0){
+            system1.state = activeNegitive;
+        } 
+        if (anglePitch > 0.0){
+            system2.state = activePositive;
+        } 
+        if (angleRoll < 0.0){
+            system2.state = activeNegitive;
+        }
+        SystemRun(system1);
+        SystemRun(system2);
         vTaskDelay(33 / portTICK_PERIOD_MS);
     }
 }
@@ -223,4 +256,25 @@ void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, fl
 void pidCompute() {
     xAxis.Compute();
     yAxis.Compute();
+}
+
+void SystemRun(System &system) {
+    if (system.state == activePositive) {
+        motor1.status = true;
+        motor2.status = false;
+    } else if (system.state == activeNegitive) {
+        motor1.status = false;
+        motor2.status = true;
+    } else if (system.state == idle) {
+        motor1.status = false;
+        motor2.status = false;
+    } else {
+        Serial.println("Unknown system state!");
+    }
+    motorPrintStatus(system.motor1);
+    motorPrintStatus(system.motor2);
+}
+
+void motorPrintStatus(Motor &motor) {
+    Serial.print("MOTOR" + String(motor.id) + ":" + motor.status);
 }
