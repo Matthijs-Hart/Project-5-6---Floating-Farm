@@ -105,19 +105,20 @@ void loop(){
 
 void handleMotorData(void * pvParameters){
     for(;;){
-        if (digitalRead(MOTOR1_PIN) != motor1Status){
+        pidCompute();
+        if (pitchOutput > 0.0){
             motor1Status = !motor1Status;
             Serial.print("MOTOR1:");
             Serial.println(!motor1Status);
-        } else if (digitalRead(MOTOR2_PIN) != motor2Status){
+        } else if (pitchOutput < 0.0){
             motor2Status = !motor2Status;
             Serial.print("MOTOR2:");
             Serial.println(!motor2Status);
-        } else if (digitalRead(MOTOR3_PIN) != motor3Status){
+        } else if (rollOutput > 0.0){
             motor3Status = !motor3Status;
             Serial.print("MOTOR3:");
             Serial.println(!motor3Status);
-        } else if (digitalRead(MOTOR4_PIN) != motor4Status){
+        } else if (rollOutput < 0.0){
             motor4Status = !motor4Status;
             Serial.print("MOTOR4:");
             Serial.println(!motor4Status);
