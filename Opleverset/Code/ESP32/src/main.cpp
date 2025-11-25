@@ -263,7 +263,7 @@ void SystemRun(System &system) {
     if (system.state == activePositive) {
         motor1.status = true;
         motor2.status = false;
-    } else if (system.state == activeNegitive) {
+    } else if (system.state == activeNegative) {
         motor1.status = false;
         motor2.status = true;
     } else if (system.state == idle) {
