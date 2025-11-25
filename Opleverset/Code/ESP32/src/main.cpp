@@ -143,6 +143,7 @@ void loop(){
 void handleMotorData(void * pvParameters){
     for(;;){
         pidCompute();
+        
         if (angleRoll > 0.0){
             system1.state = activePositive;
         } 
