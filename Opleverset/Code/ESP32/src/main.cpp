@@ -49,7 +49,7 @@ struct System
 enum SystemState {
     idle,
     activePositive,
-    activeNegitive,
+    activeNegative,
 };
 
 // Motor objects
@@ -148,13 +148,13 @@ void handleMotorData(void * pvParameters){
             system1.state = activePositive;
         } 
         if (anglePitch < 0.0){
-            system1.state = activeNegitive;
+            system1.state = activeNegative;
         } 
         if (anglePitch > 0.0){
             system2.state = activePositive;
         } 
         if (angleRoll < 0.0){
-            system2.state = activeNegitive;
+            system2.state = activeNegative;
         }
         SystemRun(system1);
         SystemRun(system2);
