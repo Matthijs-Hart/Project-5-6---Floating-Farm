@@ -6,17 +6,19 @@
 
 #define LED_PIN  2
 #define MOTOR1_PIN 12
-#define MOTOR2_PIN 14
-#define MOTOR3_PIN 27
-#define MOTOR4_PIN 26
+#define MOTOR2_PIN 13
+#define MOTOR3_PIN 14
+#define MOTOR4_PIN 27
 
 Adafruit_MPU6050 mpu;
 
-double angleRoll, anglePitch, angleYaw = 0.0; // absolute orientation
+float angleRoll, anglePitch, angleYaw = 0.0; // absolute orientation
 
 double rollOffset, pitchOffset = 0.0; // offsets used for water reference
 
 const double alpha = 0.98; // rely more on gyro or 1 - alpha erly on accelerometer
+
+float degreeMarge = 5.0; // reacts after a difference of 2 degrees or more
 
 //Multicore
 TaskHandle_t sensorHandle;
@@ -38,18 +40,17 @@ struct Motor {
     bool status;
 };
 
+enum SystemState {
+    idle,
+    activePositive,
+    activeNegative,
+};
+
 struct System
 {
     Motor motor1;
     Motor motor2;
     SystemState state;
-};
-
-
-enum SystemState {
-    idle,
-    activePositive,
-    activeNegative,
 };
 
 // Motor objects
@@ -71,20 +72,11 @@ System system2 = {
 
 sensors_event_t a, g, temp;
 
-// PID variables
-double rollOutput, rollSetpoint = 0.0;
-double pitchOutput, pitchSetpoint = 0.0;
-
-// PID controllers
-PID xAxis(&anglePitch, &pitchOutput, &pitchSetpoint, 1.0, 0.0, 0.0, DIRECT);
-PID yAxis(&angleRoll, &rollOutput, &rollSetpoint, 1.0, 0.0, 0.0, DIRECT);
-
 // declare functions
 void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, float &y, float &z, float &w);
 void setWaterReference();
 void handleSensorData(void * pvParameters);
 void handleMotorData(void * pvParameters);
-void pidCompute();
 void SystemRun(System &system);
 void motorPrintStatus(Motor &motor);
 
@@ -100,10 +92,10 @@ void setup(){
     Serial.println("MPU6050 Found!");
 
     pinMode(LED_PIN, OUTPUT);
-    pinMode(MOTOR1_PIN, INPUT_PULLUP); // input for testing using buttons
-    pinMode(MOTOR2_PIN, INPUT_PULLUP); // input for testing using buttons
-    pinMode(MOTOR3_PIN, INPUT_PULLUP); // input for testing using buttons
-    pinMode(MOTOR4_PIN, INPUT_PULLUP); // input for testing using buttons
+    pinMode(MOTOR1_PIN, OUTPUT); // input for testing using buttons
+    pinMode(MOTOR2_PIN, OUTPUT); // input for testing using buttons
+    pinMode(MOTOR3_PIN, OUTPUT); // input for testing using buttons
+    pinMode(MOTOR4_PIN, OUTPUT); // input for testing using buttons
 
     xTaskCreatePinnedToCore(handleSensorData, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
     xTaskCreatePinnedToCore(handleMotorData, "Motor", 10000, NULL, 1, &motorHandle, 1);
@@ -130,11 +122,6 @@ void setup(){
 
     lastMicros = micros();
     lastZeroTime = millis();
-
-    // start PID controllers
-    xAxis.SetMode(AUTOMATIC);
-    yAxis.SetMode(AUTOMATIC);
-
 }
 
 void loop(){
@@ -142,19 +129,24 @@ void loop(){
 
 void handleMotorData(void * pvParameters){
     for(;;){
-        pidCompute();
-        
-        if (angleRoll > 0.0){
+        // print both angles (use printf so we print both values)
+        // Serial.printf("angles: roll=%.2f pitch=%.2f\n", angleRoll, anglePitch);
+
+        // use an exclusive if/else-if chain so only one state is chosen
+        if (angleRoll > degreeMarge) {
             system1.state = activePositive;
-        } 
-        if (anglePitch < 0.0){
+        } else if (angleRoll < -degreeMarge) {
             system1.state = activeNegative;
-        } 
-        if (anglePitch > 0.0){
+        } else if (angleRoll > -degreeMarge && angleRoll < degreeMarge) {
+            // centred within the dead-zone -> idle
+            system1.state = idle;
+        }
+        if (anglePitch > degreeMarge) {
             system2.state = activePositive;
-        } 
-        if (angleRoll < 0.0){
+        } else if (anglePitch < -degreeMarge) {
             system2.state = activeNegative;
+        } else if (anglePitch > -degreeMarge && anglePitch < degreeMarge) {
+            system2.state = idle;
         }
         SystemRun(system1);
         SystemRun(system2);
@@ -254,21 +246,22 @@ void eulerToQuaternion(float rollDeg, float pitchDeg, float yawDeg, float &x, fl
   z = cr * cp * sy - sr * sp * cy;
 }
 
-void pidCompute() {
-    xAxis.Compute();
-    yAxis.Compute();
-}
-
 void SystemRun(System &system) {
     if (system.state == activePositive) {
-        motor1.status = true;
-        motor2.status = false;
+        system.motor1.status = true;
+        system.motor2.status = false;
+        digitalWrite(system.motor1.pin, HIGH);
+        digitalWrite(system.motor2.pin, LOW);
     } else if (system.state == activeNegative) {
-        motor1.status = false;
-        motor2.status = true;
+        system.motor1.status = false;
+        system.motor2.status = true;
+        digitalWrite(system.motor1.pin, LOW);
+        digitalWrite(system.motor2.pin, HIGH);
     } else if (system.state == idle) {
-        motor1.status = false;
-        motor2.status = false;
+        system.motor1.status = false;
+        system.motor2.status = false;
+        digitalWrite(system.motor1.pin, LOW);
+        digitalWrite(system.motor2.pin, LOW);
     } else {
         Serial.println("Unknown system state!");
     }
@@ -277,5 +270,5 @@ void SystemRun(System &system) {
 }
 
 void motorPrintStatus(Motor &motor) {
-    Serial.print("MOTOR" + String(motor.id) + ":" + motor.status);
+    Serial.println("MOTOR" + String(motor.id) + ":" + motor.status);
 }
