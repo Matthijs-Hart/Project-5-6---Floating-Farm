@@ -1,8 +1,6 @@
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
-#include <PID_v1.h>
-
 
 #define LED_PIN  2
 #define MOTOR1_PIN 12
@@ -92,12 +90,8 @@ void setup(){
     Serial.println("MPU6050 Found!");
 
     pinMode(LED_PIN, OUTPUT);
-    pinMode(MOTOR1_PIN, OUTPUT); // input for testing using buttons
-    pinMode(MOTOR2_PIN, OUTPUT); // input for testing using buttons
-    pinMode(MOTOR3_PIN, OUTPUT); // input for testing using buttons
-    pinMode(MOTOR4_PIN, OUTPUT); // input for testing using buttons
+    pinMode(LED_PIN, OUTPUT);
 
-    xTaskCreatePinnedToCore(handleSensorData, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
     xTaskCreatePinnedToCore(handleMotorData, "Motor", 10000, NULL, 1, &motorHandle, 1);
 
     mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
@@ -129,9 +123,6 @@ void loop(){
 
 void handleMotorData(void * pvParameters){
     for(;;){
-        // print both angles (use printf so we print both values)
-        // Serial.printf("angles: roll=%.2f pitch=%.2f\n", angleRoll, anglePitch);
-
         // use an exclusive if/else-if chain so only one state is chosen
         if (angleRoll > degreeMarge) {
             system1.state = activePositive;
