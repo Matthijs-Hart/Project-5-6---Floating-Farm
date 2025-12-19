@@ -14,9 +14,9 @@ float angleRoll, anglePitch, angleYaw = 0.0; // absolute orientation
 
 double rollOffset, pitchOffset = 0.0; // offsets used for water reference
 
-const double alpha = 0.98; // rely more on gyro or 1 - alpha erly on accelerometer
+const double alpha = 0.98; // rely more on gyro or 1 - alpha rely on accelerometer
 
-float degreeMarge = 5.0; // reacts after a difference of 2 degrees or more
+float degreeMarge = 5.0; // reacts after a difference of 5 degrees or more
 
 //Multicore
 TaskHandle_t sensorHandle;
@@ -93,6 +93,7 @@ void setup(){
     pinMode(LED_PIN, OUTPUT);
 
     xTaskCreatePinnedToCore(handleMotorData, "Motor", 10000, NULL, 1, &motorHandle, 1);
+    xTaskCreatePinnedToCore(handleSensorData, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
 
     mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
     mpu.setGyroRange(MPU6050_RANGE_500_DEG);
