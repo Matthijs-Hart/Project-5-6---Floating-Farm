@@ -40,7 +40,7 @@
             <mxPoint y="107" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="btgcOH4F3lwhrIc6vzk8-3" value="Arduino" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="btgcOH4F3lwhrIc6vzk8-3" value="ESP" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="470" y="460" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="btgcOH4F3lwhrIc6vzk8-4" value="Pompen" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
@@ -171,13 +171,13 @@
             <mxPoint x="-21" y="1" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="0UyF4L21lKlDWb783V2a-1" value="UART" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=#0000FF;" vertex="1" parent="1">
+        <mxCell id="0UyF4L21lKlDWb783V2a-1" value="UART" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=#0000FF;" parent="1" vertex="1">
           <mxGeometry x="400" y="240" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="0UyF4L21lKlDWb783V2a-4" value="UART" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=#0000FF;" vertex="1" parent="1">
+        <mxCell id="0UyF4L21lKlDWb783V2a-4" value="UART" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=#0000FF;" parent="1" vertex="1">
           <mxGeometry x="460" y="340" width="60" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="0UyF4L21lKlDWb783V2a-5" value="I2C" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=#0000FF;" vertex="1" parent="1">
+        <mxCell id="0UyF4L21lKlDWb783V2a-5" value="I2C" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=#0000FF;" parent="1" vertex="1">
           <mxGeometry x="540" y="540" width="60" height="30" as="geometry" />
         </mxCell>
       </root>
