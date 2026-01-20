@@ -25,7 +25,7 @@ Jira Link: https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/summa
 | 11 | Realiseren | Je kunt programmacode schrijven die voldoet aan gegeven kwaliteitseisen en rekening houdt met onverwachte situaties (exceptions) | Source code | `/Opleverset/Code/ESP32/src/main.cpp` | ✅ |
 | 12 | Realiseren | Je kunt ontwerpen omzetten in een werkend prototype | Fysiek prototype + demo | Prototype + `/Opleverset/Ontwerpen` | 🔄 |
 | 13 | Manage & Control | Je doet aan versiebeheer van alle relevante documenten door middel van een changelog | Changelog - Github | | ✅ | 
-| 14 | Manage & Control | Je kunt je project waar nodig tussentijds aanpassen aan gegeven budget en tijd | Jira | `[Externe link naar Jira](https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/boards/1?atlOrigin=eyJpIjoiZmIzMmZkNjc1YjdkNGZmNGEwZjg3MzEwMzVkNDcxOWUiLCJwIjoiaiJ9)` | ✅ | 
+| 14 | Manage & Control | Je kunt je project waar nodig tussentijds aanpassen aan gegeven budget en tijd | Jira | [Externe link naar Jira](https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/boards/1?atlOrigin=eyJpIjoiZmIzMmZkNjc1YjdkNGZmNGEwZjg3MzEwMzVkNDcxOWUiLCJwIjoiaiJ9) | ✅ | 
 | 15 | Professional skills | Je kunt het contact organiseren en onderhouden tussen je projectgroep en de stakeholders en die op passende wijze voor de opdracht relevante informatie voorzien | | | ✅ | 
 
 
