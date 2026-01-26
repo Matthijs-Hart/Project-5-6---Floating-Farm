@@ -3,10 +3,10 @@
 #include <Wire.h>
 
 #define LED_PIN  2
-#define MOTOR1_PIN 12
-#define MOTOR2_PIN 13
-#define MOTOR3_PIN 14
-#define MOTOR4_PIN 27
+#define MOTOR1_PIN 16
+#define MOTOR2_PIN 17
+#define MOTOR3_PIN 18
+#define MOTOR4_PIN 19
 
 Adafruit_MPU6050 mpu;
 
@@ -90,7 +90,10 @@ void setup(){
     Serial.println("MPU6050 Found!");
 
     pinMode(LED_PIN, OUTPUT);
-    pinMode(LED_PIN, OUTPUT);
+    pinMode(MOTOR1_PIN, OUTPUT);
+    pinMode(MOTOR2_PIN, OUTPUT);
+    pinMode(MOTOR3_PIN, OUTPUT);
+    pinMode(MOTOR4_PIN, OUTPUT);
 
     xTaskCreatePinnedToCore(handleMotorData, "Motor", 10000, NULL, 1, &motorHandle, 1);
     xTaskCreatePinnedToCore(handleSensorData, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
@@ -124,6 +127,7 @@ void loop(){
 
 void handleMotorData(void * pvParameters){
     for(;;){
+        
         // use an exclusive if/else-if chain so only one state is chosen
         if (angleRoll > degreeMarge) {
             system1.state = activePositive;
