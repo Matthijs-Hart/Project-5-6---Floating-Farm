@@ -4,8 +4,6 @@ Github voor schaalmodel van een stabilisatiesysteem voor de "Floating Farm"
 
 
 
-Jira Link: https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/summary
-
 ---
 
 ## Projectdoelen Matrix
@@ -23,7 +21,7 @@ Jira Link: https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/summa
 | 9 | Ontwerpen | Je kunt de werking en structuur van de code beschrijven middels een software-diagram | Flow chat + Systeemarchitectuurontwerp | `/Opleverset/Ontwerpen` | ✅ |
 | 10 | Realiseren | Je kunt met een geschikt testplan en -rapport aantonen dat het gerealiseerde product voldoet aan de eisen volgens de zelf opgestelde requirements, inclusief de security en privacy issues | Testplan en testrapport | `/Opleverset/Documentatie/Testplan.docx` | 🔄 | 
 | 11 | Realiseren | Je kunt programmacode schrijven die voldoet aan gegeven kwaliteitseisen en rekening houdt met onverwachte situaties (exceptions) | Source code | `/Opleverset/Code/ESP32/src/main.cpp` | ✅ |
-| 12 | Realiseren | Je kunt ontwerpen omzetten in een werkend prototype | Fysiek prototype + demo | Prototype + `/Opleverset/Ontwerpen` | 🔄 |
+| 12 | Realiseren | Je kunt ontwerpen omzetten in een werkend prototype | Fysiek prototype + demo | Prototype + `/Opleverset/Ontwerpen` + `/Opleverset/Demo.mp4` | 🔄 |
 | 13 | Manage & Control | Je doet aan versiebeheer van alle relevante documenten door middel van een changelog | Changelog - Github | | ✅ | 
 | 14 | Manage & Control | Je kunt je project waar nodig tussentijds aanpassen aan gegeven budget en tijd | Jira | [Externe link naar Jira](https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/boards/1?atlOrigin=eyJpIjoiZmIzMmZkNjc1YjdkNGZmNGEwZjg3MzEwMzVkNDcxOWUiLCJwIjoiaiJ9) | ✅ | 
 | 15 | Professional skills | Je kunt het contact organiseren en onderhouden tussen je projectgroep en de stakeholders en die op passende wijze voor de opdracht relevante informatie voorzien | | | ✅ | 
@@ -41,3 +39,4 @@ Jira Link: https://floatingfarm.atlassian.net/jira/software/projects/SCRUM/summa
 | Versie | Datum | Wijziging |
 |--------|-------|-----------|
 | 1.0 | 11-11-2025 | Initiële versie |
+| 1.1 | 27-1-2026 | Update Bestandsnaam/Locatie |
