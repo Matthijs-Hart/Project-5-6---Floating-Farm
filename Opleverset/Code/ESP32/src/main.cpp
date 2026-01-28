@@ -16,7 +16,7 @@ double rollOffset, pitchOffset = 0.0; // offsets used for water reference
 
 const double alpha = 0.98; // rely more on gyro or 1 - alpha rely on accelerometer
 
-float degreeMarge = 5.0; // reacts after a difference of 5 degrees or more
+float degreeMarge = 1.0; // reacts after a difference of 5 degrees or more
 
 //Multicore
 TaskHandle_t sensorHandle;
