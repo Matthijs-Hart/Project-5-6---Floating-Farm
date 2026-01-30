@@ -120,6 +120,8 @@ void setup(){
 
     lastMicros = micros();
     lastZeroTime = millis();
+
+    setWaterReference();
 }
 
 void loop(){
