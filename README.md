@@ -15,7 +15,7 @@ Github voor schaalmodel van een stabilisatiesysteem voor de "Floating Farm"
 | 3 | Analyseren | Je kunt als onderdeel van de requirements, relevante kwaliteitseisen opstellen | Requirementspecificatie | `/Opleverset/Documentatie/Requirementspecificatie.docx` | ✅ | 
 | 4 | Analyseren | Je kunt met de projectgroep voor het project relevant literatuuronderzoek, experimenteel onderzoek en gebruikersonderzoek doen | Onderzoeksrapport(en) | `/Opleverset/Documentatie/Onderzoeken/` | ✅ | 
 | 5 | Analyseren | Je kunt een analyse maken van de algemene en project specifieke risico's | Risicoanalyse document | `/Opleverset/Documentatie/RisicoAnalyse.docx` | ✅ |
-| 6 | Adviseren | Je geeft een advies welke van de alternatieve oplossingen het meest geschikt is | temp | `/Opleverset/Documentatie/Adviezen.docx` | 🔄 | 
+| 6 | Adviseren | Je geeft een advies welke van de alternatieve oplossingen het meest geschikt is | temp | `/Opleverset/Documentatie/Adviezen.docx` | ✅ | 
 | 7 | Ontwerpen | Je kunt een architectuurontwerp van de (huidige en) gewenste situatie opstellen van het eigen project | Architectuur document | `/Opleverset/Ontwerpen/Systeemarchitectuur ontwerp.drawio` | ✅ |
 | 8 | Ontwerpen | Je kunt bepalen welke ontwerpen voor functionaliteit, interactie, structuur en architectuur relevant zijn voor de eigen opdracht en deze ontwerpen opstellen | alle ontwerpen | `/Opleverset/Ontwerpen/` | ✅ | 
 | 9 | Ontwerpen | Je kunt de werking en structuur van de code beschrijven middels een software-diagram | Flow chat + Systeemarchitectuurontwerp | `/Opleverset/Ontwerpen` | ✅ |
@@ -40,3 +40,5 @@ Github voor schaalmodel van een stabilisatiesysteem voor de "Floating Farm"
 |--------|-------|-----------|
 | 1.0 | 11-11-2025 | Initiële versie |
 | 1.1 | 27-1-2026 | Update Bestandsnaam/Locatie |
+| 1.2 | 1-1-2026 | Update status |
+
