@@ -82,12 +82,12 @@ void setup(){
     Serial.begin(115200);
     while (!Serial) {delay(10);}
 
-    Wire.begin();
-    while (!mpu.begin(MPU6050_I2CADDR_DEFAULT, &Wire, 0)) {
-        Serial.println("Failed to find MPU6050 chip");
-        delay(200);
-    }
-    Serial.println("MPU6050 Found!");
+    // Wire.begin();
+    // while (!mpu.begin(MPU6050_I2CADDR_DEFAULT, &Wire, 0)) {
+    //     Serial.println("Failed to find MPU6050 chip");
+    //     delay(200);
+    // }
+    // Serial.println("MPU6050 Found!");
 
     pinMode(LED_PIN, OUTPUT);
     pinMode(MOTOR1_PIN, OUTPUT);
@@ -96,40 +96,46 @@ void setup(){
     pinMode(MOTOR4_PIN, OUTPUT);
 
     xTaskCreatePinnedToCore(handleMotorData, "Motor", 10000, NULL, 1, &motorHandle, 1);
-    xTaskCreatePinnedToCore(handleSensorData, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
+    // xTaskCreatePinnedToCore(handleSensorData, "Sensor", 10000, NULL, 1, &sensorHandle, 0);
 
-    mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
-    mpu.setGyroRange(MPU6050_RANGE_500_DEG);
-    mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+    // mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+    // mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+    // mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
 
-    delay(200);
+    // delay(200);
 
-    // Calibratie van de sensor
-    const int calSamples = 200;
-    double sx = 0, sy = 0, sz = 0;
-    for (int i = 0; i < calSamples; i++) {
-        mpu.getEvent(&a, &g, &temp);
-        sx += g.gyro.x;
-        sy += g.gyro.y;
-        sz += g.gyro.z;
-        delay(5);
-    }
-    gyroBiasX = sx / calSamples;
-    gyroBiasY = sy / calSamples;
-    gyroBiasZ = sz / calSamples;
+    // // Calibratie van de sensor
+    // const int calSamples = 200;
+    // double sx = 0, sy = 0, sz = 0;
+    // for (int i = 0; i < calSamples; i++) {
+    //     mpu.getEvent(&a, &g, &temp);
+    //     sx += g.gyro.x;
+    //     sy += g.gyro.y;
+    //     sz += g.gyro.z;
+    //     delay(5);
+    // }
+    // gyroBiasX = sx / calSamples;
+    // gyroBiasY = sy / calSamples;
+    // gyroBiasZ = sz / calSamples;
 
-    lastMicros = micros();
-    lastZeroTime = millis();
+    // lastMicros = micros();
+    // lastZeroTime = millis();
 
-    setWaterReference();
+    // setWaterReference();
 }
 
 void loop(){
+    if (Serial.available()) {
+        String msg = Serial.readStringUntil('\n');
+
+        if (msg == "WHOAREYOU") {
+            Serial.println("ESP32_OK");
+        }
+    }
 }
 
 void handleMotorData(void * pvParameters){
     for(;;){
-        
         // use an exclusive if/else-if chain so only one state is chosen
         if (angleRoll > degreeMarge) {
             system1.state = activePositive;
